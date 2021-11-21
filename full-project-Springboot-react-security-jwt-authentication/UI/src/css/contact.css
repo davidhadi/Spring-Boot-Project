@@ -1,0 +1,41 @@
+.contact_bx{
+    width:100%;
+    height:80vh;
+    margin-top: 20px;
+    text-align: center;
+}
+.contact_bx form p h3{
+    text-align: center;
+    text-decoration: underline;
+}
+.contact_bx form{
+    display: inline-block;
+    margin-top: 50px;
+    width:30%;
+    height: 350px;
+    box-shadow: 0px 0px 18px 8px rgba(0,0,0,0.73);
+    -webkit-box-shadow: 0px 0px 18px 8px rgba(0,0,0,0.73);
+    -moz-box-shadow: 0px 0px 18px 8px rgba(0,0,0,0.73);
+}
+.contact_bx form input{
+    width:90%;
+    margin-top: 20px;
+    font-size: 15px;
+    position: inherit;
+}
+.contact_bx form textarea{
+    width:90%;
+    height: 80px;
+    font-size: 15px;
+    font-style: italic;
+    color: cornsilk;
+    background-color: rgb(178, 224, 224);
+    margin-top: 20px;
+}
+.contact_bx form button{
+    width:90%;
+    height: 40px;
+    margin-top: 15px;
+    color: rgb(252, 252, 252);
+    background-color: springgreen;
+}

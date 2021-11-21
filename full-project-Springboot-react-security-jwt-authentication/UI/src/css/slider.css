@@ -1,0 +1,81 @@
+#slider {
+	overflow: hidden;
+	height: 90vh;
+}
+#slider figure {
+	position: relative;
+	width: 500%;
+	margin: 0;
+	left: 0;
+	animation: 20s slider infinite;
+}
+#slider figure img {
+	width: 20%;
+	float: left;
+}
+
+@keyframes slider {
+	0% {
+		left: 0;
+	}
+	20% {
+		left: 0;
+	}
+	25% {
+		left: -100%;
+	}
+	45% {
+		left: -100%;
+	}
+	50% {
+		left: -200%;
+	}
+	70% {
+		left: -200%;
+	}
+	75% {
+		left: -300%;
+	}
+	95% {
+		left: -300%;
+	}
+	100% {
+		left: -400%;
+	}
+}
+.text_on_scr{
+	position:relative;
+	margin-top:-200px;
+	margin-left:100px;
+}
+.text_on_scr h1{
+	font-size:100px;
+	color:#0040ff;
+}
+.text_on_scr h6{
+	font-size:50px;
+	color:#0040ff;
+}
+.description{
+	height: 100vh;
+	width: 100%;
+	background-color: rgb(13, 121, 121);
+}
+.box_description{
+	float: left;
+    background-color: rgb(136, 97, 38);
+    width:48%;
+	height: 95vh;
+	margin-left: 20px;
+	margin-top: 15px;
+	overflow: hidden;
+}
+.description_buttom{
+	height: 60vh;
+	width: 100%;
+	background-color: rgb(13, 121, 121);
+}
+.description .box_description img{
+	background-size: cover;
+	overflow: hidden;
+}

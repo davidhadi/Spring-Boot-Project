@@ -1,0 +1,35 @@
+.table_data{
+    margin-top: 40px;
+    margin-bottom: 300px;
+    position: inherit;
+}
+.table_data table{
+    width:80%;
+    margin-left:auto; 
+    margin-right:auto;
+    text-align: center;
+    background-color: rgb(16, 122, 117);
+    table-layout: fixed;
+}
+
+th{
+    padding: 15px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 15px;
+    text-transform: uppercase;
+  }
+td{
+    padding: 10px;
+    text-align: left;
+    vertical-align:middle;
+    font-weight: 300;
+    font-size: 15px;
+    border-bottom: solid 1px rgba(255,255,255,0.1);
+  }
+
+  td a{
+    font-size: 15px;
+    color: #f0ffff;
+    text-decoration: none;
+  }
