@@ -1,0 +1,39 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: hayaa-mysql
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: hayaawear_db
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-padmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: hayaa-backend
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+volumes:
+  mysql-data:
