@@ -7,6 +7,7 @@ import com.hayaawear.dto.product.ProductResponse;
 import com.hayaawear.entity.*;
 import com.hayaawear.productspecification.ProductSpecification;
 import com.hayaawear.repository.*;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -203,6 +204,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(Long id) {
 
         Product product = productRepository.findById(id)
