@@ -6,6 +6,7 @@ import com.hayaawear.entity.User;
 import com.hayaawear.repository.ProductImageRepository;
 import com.hayaawear.repository.ProductRepository;
 import com.hayaawear.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,13 +16,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class ProductImageServiceImpl implements ProductImageService {
 
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
-
-    private static final String UPLOAD_DIR = "uploads/products/";
 
     public ProductImageServiceImpl(ProductRepository productRepository, ProductImageRepository productImageRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
@@ -63,6 +63,12 @@ public class ProductImageServiceImpl implements ProductImageService {
 
             boolean hasImages =
                     productImageRepository.existsByProductId(productId);
+
+            int existingImages = product.getImages().size();
+
+            if (existingImages + files.size() > 5) {
+                throw new RuntimeException("Maximum 5 images allowed");
+            }
 
             for (MultipartFile file : files) {
 
@@ -136,8 +142,10 @@ public class ProductImageServiceImpl implements ProductImageService {
         }
 
         // 🗂️ Delete file from storage
+        String projectRoot = System.getProperty("user.dir");
         String imagePath = image.getImageUrl().replace("/uploads/", "uploads/");
-        File file = new File(imagePath);
+
+        File file = new File(projectRoot, imagePath);
 
         if (file.exists()) {
             file.delete();
@@ -145,6 +153,23 @@ public class ProductImageServiceImpl implements ProductImageService {
 
         // 🗑️ Delete DB record
         productImageRepository.delete(image);
+        // Agar deleted image primary thi to next image ko primary bana do
+        if (image.isPrimaryImage()) {
+
+            ProductImage nextPrimary =
+                    productImageRepository.findFirstByProductIdAndIdNot(product.getId(), imageId);
+
+            if (nextPrimary != null) {
+                nextPrimary.setPrimaryImage(true);
+                productImageRepository.save(nextPrimary);
+
+                product.setPrimaryImageUrl(nextPrimary.getImageUrl());
+            } else {
+                product.setPrimaryImageUrl(null);
+            }
+
+            productRepository.save(product);
+        }
     }
 
     @Override

@@ -57,11 +57,6 @@ public class OrderServiceImpl implements OrderService {
             }
 
             product.setStock(product.getStock() - cartItem.getQuantity());
-
-            if (product.getStock() == 0) {
-                product.setStatus(ProductStatus.PENDING);
-            }
-
             productRepository.save(product);
 
             double price = product.getDiscountPrice() != null
@@ -132,6 +127,23 @@ public class OrderServiceImpl implements OrderService {
 
         OrderStatus current = order.getStatus();
 
+        if (current == OrderStatus.PENDING &&
+                newStatus != OrderStatus.CONFIRMED &&
+                newStatus != OrderStatus.CANCELLED) {
+            throw new RuntimeException("Pending order must be confirmed or cancelled first");
+        }
+
+        if (current == OrderStatus.CONFIRMED &&
+                newStatus != OrderStatus.SHIPPED &&
+                newStatus != OrderStatus.CANCELLED) {
+            throw new RuntimeException("Confirmed order must be shipped or cancelled");
+        }
+
+        if (current == OrderStatus.SHIPPED &&
+                newStatus != OrderStatus.DELIVERED) {
+            throw new RuntimeException("Shipped order can only be delivered");
+        }
+
         // ❌ Delivered orders are final
         if (current == OrderStatus.DELIVERED) {
             throw new RuntimeException("Delivered order cannot be updated");
@@ -197,7 +209,6 @@ public class OrderServiceImpl implements OrderService {
         OrderResponse response = new OrderResponse();
 
         response.setOrderId(order.getId());
-        response.setTotalAmount(order.getTotalAmount());
         response.setStatus(order.getStatus());
         response.setCreatedAt(order.getCreatedAt());
 
@@ -224,6 +235,19 @@ public class OrderServiceImpl implements OrderService {
                             return itemRes;
                         })
                         .toList();
+
+        double sellerTotal = order.getItems()
+                .stream()
+                .filter(item ->
+                        item.getProduct()
+                                .getSeller()
+                                .getEmail()
+                                .equals(sellerEmail))
+                .mapToDouble(item ->
+                        item.getPriceAtPurchase() * item.getQuantity())
+                .sum();
+
+        response.setTotalAmount(sellerTotal);
 
         response.setItems(itemResponses);
 

@@ -7,6 +7,8 @@ import com.hayaawear.dto.product.ProductResponse;
 import com.hayaawear.entity.*;
 import com.hayaawear.productspecification.ProductSpecification;
 import com.hayaawear.repository.*;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -362,6 +364,64 @@ public class ProductServiceImpl implements ProductService {
 
         product.setStatus(ProductStatus.REJECTED);
         productRepository.save(product);
+    }
+
+    @Override
+    @CachePut(value = "products", key = "#productId")
+    public ProductResponse updateProduct(
+            Long productId,
+            ProductRequest request,
+            String sellerEmail) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // Ownership check
+        if (!product.getSeller().getEmail().equals(sellerEmail)) {
+            throw new RuntimeException("You can update only your own product");
+        }
+
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        SubCategory subCategory = subCategoryRepository.findById(request.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("SubCategory not found"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setDiscountPrice(request.getDiscountPrice());
+        product.setStock(request.getStock());
+        product.setSleeveType(request.getSleeveType());
+        product.setDressLength(request.getDressLength());
+        product.setFitType(request.getFitType());
+        product.setHijabCompatible(request.isHijabCompatible());
+        product.setTransparent(request.isTransparent());
+        product.setOccasions(request.getOccasions());
+        product.setCategory(category);
+        product.setSubCategory(subCategory);
+
+        Product updatedProduct = productRepository.save(product);
+
+        if (product.getStatus() == ProductStatus.ACTIVE) {
+            product.setStatus(ProductStatus.PENDING);
+        }
+
+        return mapToResponse(updatedProduct);
+    }
+
+    @Override
+    @CacheEvict(value = "products", key = "#productId")
+    public void deleteProduct(Long productId, String sellerEmail) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (!product.getSeller().getEmail().equals(sellerEmail)) {
+            throw new RuntimeException("You can delete only your own product");
+        }
+
+        productRepository.delete(product);
     }
 
 

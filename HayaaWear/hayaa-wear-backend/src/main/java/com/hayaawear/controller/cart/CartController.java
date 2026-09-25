@@ -1,9 +1,9 @@
 package com.hayaawear.controller.cart;
 
 import com.hayaawear.dto.cart.*;
-import com.hayaawear.entity.Product;
-import com.hayaawear.repository.ProductRepository;
 import com.hayaawear.service.cart.CartService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,24 +15,16 @@ public class CartController {
 
     private final CartService cartService;
 
-    private final ProductRepository productRepository;
-
-    public CartController(CartService cartService, ProductRepository productRepository) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.productRepository = productRepository;
     }
 
     @PostMapping
-    public String addToCart(@RequestBody AddToCartRequest request, Authentication authentication) {
+    public ResponseEntity<String> addToCart(@RequestBody AddToCartRequest request, Authentication authentication) {
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        if(product.getStock() < request.getQuantity()){
-            throw new RuntimeException("Insufficient stock");
-        }
         cartService.addToCart(request, authentication.getName());
-        return "Added to cart";
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Added to cart");
     }
 
     @GetMapping
@@ -41,14 +33,17 @@ public class CartController {
     }
 
     @PutMapping("/{itemId}")
-    public String updateQuantity(@PathVariable Long itemId, @RequestParam int quantity, Authentication authentication) {
+    public ResponseEntity<String> updateQuantity(@PathVariable Long itemId, @RequestParam int quantity, Authentication authentication) {
         cartService.updateQuantity(itemId, quantity, authentication.getName());
-        return "Quantity updated";
+        return ResponseEntity.ok("Quantity updated");
     }
 
     @DeleteMapping("/{itemId}")
-    public String removeItem(@PathVariable Long itemId, Authentication authentication) {
+    public ResponseEntity<Void> removeItem(
+            @PathVariable Long itemId,
+            Authentication authentication) {
+
         cartService.removeItem(itemId, authentication.getName());
-        return "Item removed";
+        return ResponseEntity.noContent().build();
     }
 }

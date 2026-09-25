@@ -197,6 +197,34 @@ public class ProductController {
         );
     }
 
+    @PreAuthorize("hasRole('SELLER')")
+    @PutMapping("/{productId}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long productId,
+            @RequestBody ProductRequest request,
+            Authentication authentication) {
+
+        ProductResponse response = productService.updateProduct(
+                productId,
+                request,
+                authentication.getName());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(
+            @PathVariable Long productId,
+            Authentication authentication) {
+
+        productService.deleteProduct(
+                productId,
+                authentication.getName());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin")
     public Page<ProductListResponse> getAllProductsForAdmin(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
@@ -217,4 +245,5 @@ public class ProductController {
         productService.rejectProduct(productId);
         return "Product rejected successfully";
     }
+
 }

@@ -43,9 +43,14 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-//        if (product.getStatus() == ProductStatus.PENDING) {
-//            throw new RuntimeException("Product is not available");
-//        }
+
+        if(product.getStock() < request.getQuantity()){
+            throw new RuntimeException("Insufficient stock");
+        }
+
+        if (product.getStatus() == ProductStatus.PENDING) {
+            throw new RuntimeException("Product is not available");
+        }
 
         Cart cart = cartRepository.findByUser(user)
                 .orElseGet(() -> cartRepository.save(new Cart(user)));
@@ -128,8 +133,7 @@ public class CartServiceImpl implements CartService {
         }
 
         if (quantity <= 0) {
-            cartItemRepository.delete(item);
-            return;
+            throw new RuntimeException("Quantity must be greater than zero");
         }
 
         item.setQuantity(quantity);

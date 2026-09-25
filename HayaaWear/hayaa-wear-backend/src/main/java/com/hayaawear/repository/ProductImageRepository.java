@@ -17,6 +17,8 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
 
     boolean existsByProductId(Long productId);
 
+    ProductImage findFirstByProductIdAndIdNot(Long productId, Long imageId);
+
     // Safety: product delete hone par images clean karne ke liye
     void deleteByProductId(Long productId);
 }

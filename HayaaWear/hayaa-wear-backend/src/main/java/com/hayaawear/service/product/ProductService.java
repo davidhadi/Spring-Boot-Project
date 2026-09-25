@@ -54,5 +54,8 @@ public interface ProductService {
     );
 
 
+    ProductResponse updateProduct(Long productId, ProductRequest request, String sellerEmail);
+
+    void deleteProduct(Long productId, String sellerEmail);
 }
 
