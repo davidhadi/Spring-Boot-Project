@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { useCart } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import { motion } from "framer-motion";
+import logo from "../assets/hayaawear_logo.png"
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -34,7 +35,7 @@ console.log("Cart Count:", cartCount);
         <Link to="/" className="flex items-center space-x-2">
           <motion.img
             whileHover={{ scale: 1.05 }}
-            src="/hayaawear_logo.png"   // 👈 put your logo inside public folder
+            src={logo}   // 👈 put your logo inside public folder
             alt="HayaaWear"
             className="h-10 object-contain"
           />

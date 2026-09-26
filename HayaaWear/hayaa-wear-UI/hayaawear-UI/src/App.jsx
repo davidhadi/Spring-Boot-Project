@@ -23,6 +23,7 @@ import AdminAddCategory from "./admin/AdminAddCategory";
 import AdminAddSubCategory from "./admin/AdminAddSubCategory";
 import CartPage from "./pages/shop/CartPage";
 import About from "./components/About";
+import NotFound from "./pages/NotFound";
 
 
 function App() {
@@ -33,12 +34,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/about" element={<About />} />
-<Route path="/seller" element={<SellerDashboard />} />
-       <Route
+        <Route
   path="/profile"
   element={
     <ProtectedRoute allowedRoles={["CUSTOMER", "ADMIN", "SELLER"]}>
@@ -86,8 +84,23 @@ function App() {
   }
 />
 
-<Route path="/seller/products/add" element={<AddProduct />} />
-<Route path="/seller/products" element={<SellerProducts />} />
+<Route
+  path="/seller/products/add"
+  element={
+    <ProtectedRoute allowedRoles={["SELLER"]}>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/seller/products"
+  element={
+    <ProtectedRoute allowedRoles={["SELLER"]}>
+      <SellerProducts />
+    </ProtectedRoute>
+  }
+/>
 
 <Route
   path="/admin/products"
@@ -97,6 +110,8 @@ function App() {
     </ProtectedRoute>
   }
 />
+
+<Route path="*" element={<NotFound />} />
 
       </Routes>
       <Footer />
