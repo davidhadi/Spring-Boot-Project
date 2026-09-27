@@ -10,11 +10,15 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const getToken = () => {
-  return (
-    localStorage.getItem("jwt") ||
-    JSON.parse(localStorage.getItem("user"))?.token
-  );
+ const getToken = () => {
+  const jwt = localStorage.getItem("jwt");
+  if (jwt) return jwt;
+
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}")?.token;
+  } catch {
+    return null;
+  }
 };
 
   // ✅ ADD TO CART
@@ -52,26 +56,40 @@ export const CartProvider = ({ children }) => {
 
   // ✅ GET CART
   const fetchCart = async () => {
-    const token = getToken();
-    
+  const token = getToken();
 
-    try {
-      const res = await fetch("http://localhost:8080/cart", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  // Guest user hai to cart API call hi mat karo
+  if (!token) {
+    setCartItems([]);
+    return;
+  }
 
-      const data = await res.json();
+  try {
+    const res = await fetch("http://localhost:8080/cart", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      console.log("CART RESPONSE:", data);
+    // 401/403 par JSON parse mat karo
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        setCartItems([]);
+        return;
+      }
 
-      // 👇 adjust if structure different
-      setCartItems(data.items || []);
-    } catch (err) {
-      console.error(err);
+      throw new Error(`Cart Error: ${res.status}`);
     }
-  };
+
+    const data = await res.json();
+
+    console.log("CART RESPONSE:", data);
+
+    setCartItems(data.items || []);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 
   // ✅ UPDATE QUANTITY

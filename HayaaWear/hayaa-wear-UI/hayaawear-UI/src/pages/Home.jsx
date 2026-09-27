@@ -65,14 +65,24 @@ const Home = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [productsRes, categoryRes] = await Promise.all([
-          API.get("/products?page=0&size=4"),
-          API.get("/admin/categories"),
-        ]);
+        const [productsRes, allProductsRes] = await Promise.all([
+  API.get("/products?page=0&size=4"),
+  API.get("/products/all"),
+]);
 
-        setNewArrivals(productsRes.data.content || []);
-        setCategories(categoryRes.data || []);
-        console.log("First Category:", categoryRes.data[0]);
+setNewArrivals(productsRes.data.content || []);
+console.log("PRODUCT KEYS:", Object.keys(allProductsRes.data[0]));
+console.log("FIRST PRODUCT FULL:", JSON.stringify(allProductsRes.data[0], null, 2));
+
+const uniqueCategories = Array.from(
+  new Map(
+    (allProductsRes.data || [])
+      .filter((p) => p.category)
+      .map((p) => [p.category.id, p.category])
+  ).values()
+);
+
+setCategories(uniqueCategories);
       } catch (err) {
         console.error(err);
       } finally {
