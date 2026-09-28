@@ -100,15 +100,10 @@ public class ProductServiceImpl implements ProductService {
                     response.setPrice(product.getPrice());
                     response.setDiscountPrice(product.getDiscountPrice());
 
-                    // 🔥 Only primary image
-                    String primaryImage = product.getImages()
-                            .stream()
-                            .filter(ProductImage::isPrimaryImage)
-                            .map(ProductImage::getImageUrl)
-                            .findFirst()
-                            .orElse(null);
+                    response.setCategory(product.getCategory());
 
-                    response.setPrimaryImage(primaryImage);
+                    // 🔥 Only primary image
+                    response.setPrimaryImage(product.getPrimaryImageUrl());
 
                     return response;
                 })

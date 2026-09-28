@@ -1,6 +1,7 @@
 package com.hayaawear.dto.product;
 
 import com.hayaawear.entity.ProductStatus;
+import com.hayaawear.entity.Category;
 
 public class ProductListResponse {
 
@@ -12,6 +13,8 @@ public class ProductListResponse {
     private ProductStatus status;
 
     private String primaryImage;
+
+    private Category category;
 
     public ProductListResponse() {}
 
@@ -36,5 +39,13 @@ public class ProductListResponse {
 
     public void setStatus(ProductStatus status) {
         this.status = status;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
