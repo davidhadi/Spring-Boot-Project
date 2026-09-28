@@ -12,6 +12,7 @@ import mehndiImg from "../assets/occassion/mehndi.png";
 import walimaImg from "../assets/occassion/walima.png";
 import dailyImg from "../assets/occassion/party.png";
 import shopImg from "../assets/occassion/shopbyoccassion.png"
+import shopdImg from "../assets/dtype/shopbydresstype.jpeg"
 
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
@@ -66,7 +67,7 @@ const Home = () => {
     const loadData = async () => {
       try {
         const [productsRes, allProductsRes] = await Promise.all([
-  API.get("/products?page=0&size=4"),
+  API.get("/products?page=0&size=5"),
   API.get("/products/all"),
 ]);
 
@@ -93,16 +94,17 @@ setCategories(uniqueCategories);
     loadData();
   }, []);
 
-  const openCategory = async (category) => {
-    setSelectedCategory(category);
+const openCategory = async (category) => {
+  setSelectedCategory(category);
 
-    try {
-      const res = await API.get(`/subcategories/${category.id}`);
-      setSubCategories(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const res = await API.get(`/subcategories/category/${category.id}`);
+    setSubCategories(res.data || []);
+  } catch (err) {
+    console.error(err);
+    setSubCategories([]);
+  }
+};
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0A0A0A] text-white">
@@ -307,13 +309,12 @@ setCategories(uniqueCategories);
 </section>
 
       {/* CATEGORIES */}
-{/* CATEGORIES */}
 <section className="relative z-10 w-full px-6 md:px-12 lg:px-20 py-16">
 
   {/* Premium Banner */}
   <div className="mb-12 text-center">
     <motion.img
-      src="/shopbydress.png"
+      src={shopdImg}
       alt="Shop by Dress Type"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.4 }}
@@ -322,37 +323,51 @@ setCategories(uniqueCategories);
     <h2 className="sr-only">Shop by Dress Type</h2>
   </div>
 
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-    {categories.map((cat) => (
+   {categories.map((cat) => (
   <motion.div
     key={cat.id}
     whileHover={{ y: -8, scale: 1.03 }}
     transition={{ duration: 0.35 }}
     onClick={() => openCategory(cat)}
-    className="group cursor-pointer overflow-hidden rounded-[28px] bg-[#111] border border-[#D4AF37]/20 hover:border-[#D4AF37] hover:shadow-[0_0_35px_rgba(212,175,55,0.30)] transition-all duration-500"
+    className="group relative cursor-pointer overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-[#111] shadow-lg hover:shadow-[0_0_35px_rgba(212,175,55,0.35)]"
   >
-    <div className="relative aspect-[3/4] overflow-hidden">
+    <img
+      src={`${API_BASE}${cat.imageUrl}`}
+      alt={cat.name}
+      onError={(e) => (e.target.src = "/placeholder.jpg")}
+      className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+    />
 
-  <img
-    src={`${API_BASE}${cat.imageUrl}`}
-onError={(e) => {
-  console.log("Failed Image:", `${API_BASE}${cat.imageUrl}`);
-  e.target.src = "/placeholder.jpg";
-}}
-    alt={cat.name}
-    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-  />
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
 
-  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+    <div className="absolute bottom-6 left-0 right-0 px-4 text-center">
+      <h3 className="text-xl font-bold text-white">{cat.name}</h3>
 
-  <div className="absolute bottom-5 left-0 right-0 px-4 text-center">
-    <h3 className="text-2xl font-bold text-white">
-      {cat.name}
-    </h3>
-  </div>
+      <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-gray-300">
+        Explore Premium Collection
+      </p>
 
-</div>
+      <div className="mt-5 flex justify-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37] bg-black/40 transition-all duration-300 group-hover:bg-[#D4AF37] group-hover:text-black">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 12h14M13 5l7 7-7 7"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
   </motion.div>
 ))}
   </div>
@@ -361,47 +376,79 @@ onError={(e) => {
       {/* SUBCATEGORIES */}
 
       {selectedCategory && (
-        <section className="relative z-10 w-full px-6 md:px-12 lg:px-20 py-12">
+  <section className="relative z-10 w-full px-6 md:px-12 lg:px-20 py-16">
+    {/* Heading */}
+    <div className="mb-12 text-center">
+      <h2 className="text-3xl md:text-4xl font-bold text-[#D4AF37]">
+        {selectedCategory.name} Collection
+      </h2>
+      <p className="mt-3 text-gray-400 tracking-[0.25em] uppercase text-xs">
+        Explore Premium Collection
+      </p>
+    </div>
 
-          <h2 className="text-3xl text-[#D4AF37] font-bold mb-10">
-            {selectedCategory.name} Collection
-          </h2>
+    {/* No Subcategory */}
+    {subCategories.length === 0 ? (
+      <div className="text-center py-12 border border-dashed border-[#D4AF37]/30 rounded-3xl bg-[#111]/40">
+        <p className="text-gray-300">No subcategories available.</p>
+      </div>
+    ) : (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {subCategories.map((sub) => (
+          <motion.div
+            key={sub.id}
+            whileHover={{ y: -8, scale: 1.03 }}
+            transition={{ duration: 0.35 }}
+            onClick={() => navigate(`/shop?subCategory=${sub.id}`)}
+            className="group relative cursor-pointer overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-[#111] shadow-lg hover:shadow-[0_0_35px_rgba(212,175,55,0.35)]"
+          >
+            <img
+              src={
+                sub.imageUrl
+                  ? `${API_BASE}${sub.imageUrl}`
+                  : "/placeholder.jpg"
+              }
+              alt={sub.name}
+              onError={(e) => (e.target.src = "/placeholder.jpg")}
+              className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
 
-            {subCategories.map((sub) => (
-              <motion.div
-                key={sub.id}
-                whileHover={{ y: -6 }}
-                onClick={() => navigate(`/shop?subCategory=${sub.id}`)}
-                className="cursor-pointer overflow-hidden rounded-3xl bg-[#141414] border border-[#D4AF37]/20 hover:border-[#D4AF37]/60 transition"
-              >
+            <div className="absolute bottom-6 left-0 right-0 px-4 text-center">
+              <h3 className="text-xl font-bold text-white">
+                {sub.name}
+              </h3>
 
-                {sub.imageUrl && (
-                  <div className="relative aspect-[4/5] overflow-hidden">
+              <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-gray-300">
+                Explore Premium Collection
+              </p>
 
-                    <img
-                      src={`${API_BASE}${sub.imageUrl}`}
-                      alt={sub.name}
-                      className="w-full h-full object-cover hover:scale-110 transition duration-700"
+              <div className="mt-5 flex justify-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37] bg-black/40 transition-all duration-300 group-hover:bg-[#D4AF37] group-hover:text-black">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 12h14M13 5l7 7-7 7"
                     />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-
-                    <h3 className="absolute bottom-4 left-4 text-lg font-semibold text-[#F4E2A1]">
-                      {sub.name}
-                    </h3>
-
-                  </div>
-                )}
-
-              </motion.div>
-            ))}
-
-          </div>
-
-        </section>
-      )}
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    )}
+  </section>
+)}
 
       {/* NEW ARRIVALS */}
 
@@ -432,44 +479,58 @@ onError={(e) => {
 
         ) : (
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-            {newArrivals.map((product) => (
-              <motion.div
-                key={product.id}
-                whileHover={{ y: -8 }}
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="cursor-pointer rounded-3xl overflow-hidden bg-[#141414] border border-[#D4AF37]/20 hover:border-[#D4AF37]/60 transition"
-              >
+           {newArrivals.map((product) => (
+  <motion.div
+    key={product.id}
+    whileHover={{ y: -8, scale: 1.03 }}
+    transition={{ duration: 0.35 }}
+    onClick={() => navigate(`/product/${product.id}`)}
+    className="group relative cursor-pointer overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-[#111] shadow-lg hover:shadow-[0_0_35px_rgba(212,175,55,0.35)]"
+  >
+    <img
+      src={
+        product.primaryImage
+          ? `${API_BASE}${product.primaryImage}`
+          : "/placeholder.jpg"
+      }
+      alt={product.name}
+      className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+    />
 
-                <div className="aspect-[4/5] overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
 
-                  <img
-                    src={product.primaryImage || "/placeholder.jpg"}
-                    alt={product.name}
-                    className="w-full h-full object-cover hover:scale-110 transition duration-700"
-                  />
+    <div className="absolute bottom-6 left-0 right-0 px-4 text-center">
+      <h3 className="text-xl font-bold text-white line-clamp-1">
+        {product.name}
+      </h3>
 
-                </div>
+      <p className="mt-2 text-lg font-bold text-[#D4AF37]">
+        ₹ {product.discountPrice || product.price}
+      </p>
 
-                <div className="p-5">
-
-                  <h3 className="text-lg font-semibold text-[#F4E2A1] line-clamp-1">
-                    {product.name}
-                  </h3>
-
-                  <p className="mt-2 text-[#D4AF37] font-bold">
-                    ₹ {product.discountPrice || product.price}
-                  </p>
-
-                  <button className="mt-5 w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#E6C76A] text-black font-semibold hover:scale-[1.02] transition">
-                    View Details
-                  </button>
-
-                </div>
-
-              </motion.div>
-            ))}
+      <div className="mt-5 flex justify-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#D4AF37] bg-black/40 transition-all duration-300 group-hover:bg-[#D4AF37] group-hover:text-black">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 12h14M13 5l7 7-7 7"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+))}
 
           </div>
 
