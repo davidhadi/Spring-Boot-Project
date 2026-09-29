@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -218,7 +220,11 @@ public class ProductServiceImpl implements ProductService {
         response.setDressLength(product.getDressLength());
         response.setFitType(product.getFitType());
         response.setHijabCompatible(product.isHijabCompatible());
-        response.setOccasions(product.getOccasions());
+        response.setOccasions(
+                product.getOccasions() == null
+                        ? null
+                        : new HashSet<>(product.getOccasions())
+        );
 
         // 🔥 Map & sort images (Primary first)
         List<ProductImageResponse> imageResponses =
