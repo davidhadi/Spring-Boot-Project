@@ -1,10 +1,12 @@
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, ChevronDown, X } from "lucide-react";
 import ProductCard from "./ProductCard";
 import API from "../../services/api";
 
 const Shop = () => {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -33,13 +35,29 @@ const Shop = () => {
         );
 
         setCategories(uniqueCategories);
+        const categoryFromUrl = searchParams.get("category");
+
+        console.log("CATEGORY FROM URL:", categoryFromUrl);
+        console.log("ALL CATEGORIES:", uniqueCategories);
+
+if (categoryFromUrl) {
+  const matchedCategory = uniqueCategories.find(
+    (category) =>
+      category.name.toLowerCase() === categoryFromUrl.toLowerCase()
+  );
+
+  if (matchedCategory) {
+    console.log("MATCHED CATEGORY:", matchedCategory);
+    setSelectedCategory(matchedCategory.id);
+  }
+}
       } catch (error) {
         console.error("Shop API Error:", error);
       }
     };
 
     loadProducts();
-  }, []);
+  }, [searchParams]);
 
   /* ---------------- FILTER ---------------- */
 
