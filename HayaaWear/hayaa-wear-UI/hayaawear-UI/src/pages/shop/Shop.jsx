@@ -10,6 +10,7 @@ const Shop = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedOccasions, setSelectedOccasions] = useState([]);
   const [sortBy, setSortBy] = useState("featured");
   const [mobileFilter, setMobileFilter] = useState(false);
 
@@ -62,13 +63,25 @@ if (categoryFromUrl) {
   /* ---------------- FILTER ---------------- */
 
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter(
-          (product) =>
-            product.category?.id === selectedCategory
-        );
+  const filteredProducts = products.filter((product) => {
+
+  // Category filter
+  const categoryMatch =
+    selectedCategory === "All" ||
+    product.category?.id === selectedCategory;
+
+  // Occasion filter
+  const occasionMatch =
+    selectedOccasions.length === 0 ||
+    selectedOccasions.some((occasion) =>
+      product.occasions?.includes(occasion)
+    );
+
+    console.log("PRODUCTS:", products);
+console.log("SELECTED OCCASIONS:", selectedOccasions);
+
+  return categoryMatch && occasionMatch;
+});
 
   /* ---------------- SORT ---------------- */
 
@@ -359,50 +372,52 @@ if (categoryFromUrl) {
 
               <div className="h-px bg-white/10 my-7" />
 
-              {/* Occasions */}
+             {/* Occasions */}
+<div>
+  <h4 className="text-sm font-semibold text-[#d4af37] uppercase tracking-wider mb-4">
+    Occasion
+  </h4>
 
-              <div>
+  <div className="space-y-3">
+    {[
+      { label: "Eid", value: "EID" },
+      { label: "Nikah", value: "NIKAH" },
+      { label: "Mehndi", value: "MEHNDI" },
+      { label: "Walima", value: "WALIMA" },
+      { label: "Daily Wear", value: "DAILY_WEAR" },
+    ].map((occasion) => (
+      <label
+        key={occasion.value}
+        className="
+          flex items-center gap-3
+          text-sm text-gray-300
+          cursor-pointer
+          hover:text-white
+        "
+      >
 
-                <h4 className="text-sm font-semibold text-[#d4af37] uppercase tracking-wider mb-4">
-                  Occasion
-                </h4>
+    
+        <input
+          type="checkbox"
+          checked={selectedOccasions.includes(occasion.value)}
+          onChange={() => {
+            setSelectedOccasions((prev) =>
+              prev.includes(occasion.value)
+                ? prev.filter((item) => item !== occasion.value)
+                : [...prev, occasion.value]
+            );
+          }}
+          className="
+            accent-[#d4af37]
+            w-4 h-4
+          "
+        />
 
-                <div className="space-y-3">
-
-                  {[
-                    "Eid",
-                    "Nikah",
-                    "Mehndi",
-                    "Walima",
-                    "Daily Wear",
-                  ].map((occasion) => (
-
-                    <label
-                      key={occasion}
-                      className="
-                        flex items-center gap-3
-                        text-sm text-gray-300
-                        cursor-pointer
-                        hover:text-white
-                      "
-                    >
-                      <input
-                        type="checkbox"
-                        className="
-                          accent-[#d4af37]
-                          w-4 h-4
-                        "
-                      />
-
-                      {occasion}
-
-                    </label>
-
-                  ))}
-
-                </div>
-
-              </div>
+        <span>{occasion.label}</span>
+      </label>
+    ))}
+  </div>
+</div>
 
               {/* Divider */}
 

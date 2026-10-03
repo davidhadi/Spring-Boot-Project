@@ -132,7 +132,7 @@ const openCategory = async (category) => {
 
       {/* HERO */}
         {/* ================= HERO SECTION ================= */}
-<section className="relative min-h-screen bg-[#0A0A0A] overflow-hidden flex items-center">
+<section className="relative min-h-[720px] lg:min-h-screen bg-[#0A0A0A] overflow-hidden flex flex-col lg:flex-row items-center">
 
   {/* Background Glow */}
   <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,rgba(212,175,55,0.18),transparent_45%)]" />
@@ -210,9 +210,13 @@ const openCategory = async (category) => {
   </motion.div>
 
   {/* Mobile Image */}
-  <div className="absolute bottom-0 right-0 w-[75%] lg:hidden">
-    <img src={heroModel} alt="HayaaWear Model" className="w-full object-contain" />
-  </div>
+<div className="relative w-full flex justify-center mt-6 lg:hidden">
+  <img
+    src={heroModel}
+    alt="HayaaWear Model"
+    className="w-[78%] sm:w-[65%] h-auto object-contain drop-shadow-[0_0_40px_rgba(212,175,55,0.3)]"
+  />
+</div>
 
   {/* Scroll */}
   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center text-[#D4AF37] animate-bounce">
