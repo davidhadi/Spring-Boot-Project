@@ -60,7 +60,7 @@ if (categoryFromUrl) {
   }, [searchParams]);
 
   /* ---------------- FILTER ---------------- */
-  /*--
+
 
   const filteredProducts =
     selectedCategory === "All"
