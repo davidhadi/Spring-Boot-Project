@@ -106,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
 
                     // 🔥 Only primary image
                     response.setPrimaryImage(product.getPrimaryImageUrl());
+                    response.setOccasions(product.getOccasions());
 
                     return response;
                 })

@@ -1,7 +1,6 @@
 package com.hayaawear.entity;
 
-
-import com.hayaawear.entity.BaseEntity;
+;
 import jakarta.persistence.*;
 
 @Entity

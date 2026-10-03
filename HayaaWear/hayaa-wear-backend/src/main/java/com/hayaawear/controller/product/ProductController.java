@@ -43,9 +43,6 @@ public class ProductController {
             Authentication authentication
     ) {
 
-        System.out.println("Authentication: " + authentication);
-        System.out.println("Authorities: " + authentication.getAuthorities());
-
         String sellerEmail = authentication.getName();
         return productService.addProduct(request, sellerEmail);
     }
