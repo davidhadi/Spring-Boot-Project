@@ -1,4 +1,5 @@
 import React from "react";
+import founder from "../assets/img.png"
 
 const About = () => {
   return (
@@ -51,7 +52,7 @@ const About = () => {
           <div className="flex flex-col md:flex-row items-center gap-10">
 
             <img
-              src="/founder.jpg"
+              src={founder}
               alt="Founder"
               className="w-56 h-56 rounded-full object-cover border-4 border-yellow-500"
             />
