@@ -32,7 +32,7 @@ const Footer = () => {
         <div>
           <h3 className="text-lg text-yellow-400 mb-4">Contact Us</h3>
           <p className="text-sm mb-2">📍 Garhwa, Jharkhand, India</p>
-          <p className="text-sm mb-2">📞 +91 8651774283</p>
+          <p className="text-sm mb-2">📞 +91 9525178942</p>
           <p className="text-sm mb-2">✉ support@hayaawear.com</p>
 
           <div className="flex space-x-4 mt-4 text-xl">
