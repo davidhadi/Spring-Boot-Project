@@ -31,8 +31,8 @@ const Footer = () => {
         {/* CONTACT */}
         <div>
           <h3 className="text-lg text-yellow-400 mb-4">Contact Us</h3>
-          <p className="text-sm mb-2">📍 Mumbai, Maharashtra, India</p>
-          <p className="text-sm mb-2">📞 +91 98765 43210</p>
+          <p className="text-sm mb-2">📍 Garhwa, Jharkhand, India</p>
+          <p className="text-sm mb-2">📞 +91 8651774283</p>
           <p className="text-sm mb-2">✉ support@hayaawear.com</p>
 
           <div className="flex space-x-4 mt-4 text-xl">
@@ -49,12 +49,13 @@ const Footer = () => {
           <div className="rounded-xl overflow-hidden border border-yellow-600/30">
             <iframe
               title="map"
-              src="https://www.google.com/maps?q=Mumbai,India&output=embed"
+              src="https://www.google.com/maps/embed?pb=!1m17!1m11!1m3!1d1264.860452254924!2d83.77902157191244!3d24.20496591161949!2m2!1f0!2f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398c0fe19b1fed6f%3A0x59d1f9b6777a5f64!2s6Q3H%2BWJW%2C%20Unnamed%20Road%2C%20Daleli%2C%20Jharkhand%20822114!5e1!3m2!1sen!2sin!4v1791184161882!5m2!1sen!2sin"
               width="100%"
               height="200"
               loading="lazy"
               className="rounded-xl"
             />
+          
           </div>
         </div>
 
