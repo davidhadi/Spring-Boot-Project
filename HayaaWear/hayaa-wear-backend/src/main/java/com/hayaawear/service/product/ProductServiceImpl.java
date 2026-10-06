@@ -13,10 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
+import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -102,15 +103,65 @@ public class ProductServiceImpl implements ProductService {
 
             product.setAttributes(attributes);
         }
+
+
         if (request.getVariants() != null) {
 
             List<ProductVariant> variants = request.getVariants()
                     .stream()
                     .map(variantRequest -> {
 
+                        Set<String> variantCombinations = new HashSet<>();
+
                         ProductVariant variant = new ProductVariant();
 
+                        if (variantRequest.getOptions() == null
+                                || variantRequest.getOptions().isEmpty()) {
+                            throw new RuntimeException(
+                                    "Variant must have at least one option"
+                            );
+                        }
+
+                        String combination = variantRequest.getOptions()
+                                .stream()
+                                .sorted(
+                                        Comparator.comparing(
+                                                ProductVariantOptionRequest::getOptionName
+                                        )
+                                )
+                                .map(option ->
+                                        option.getOptionName() + "=" + option.getOptionValue()
+                                )
+                                .collect(Collectors.joining("|"));
+
+                        if (!variantCombinations.add(combination)) {
+                            throw new RuntimeException(
+                                    "Duplicate variant combination: " + combination
+                            );
+                        }
+
                         variant.setProduct(product);
+
+                        if (variantRequest.getPrice() == null || variantRequest.getPrice() < 0) {
+                            throw new RuntimeException("Variant price cannot be negative");
+                        }
+
+                        if (variantRequest.getDiscountPrice() != null
+                                && variantRequest.getDiscountPrice() < 0) {
+                            throw new RuntimeException("Variant discount price cannot be negative");
+                        }
+
+                        if (variantRequest.getDiscountPrice() != null
+                                && variantRequest.getDiscountPrice() > variantRequest.getPrice()) {
+                            throw new RuntimeException(
+                                    "Variant discount price cannot be greater than price"
+                            );
+                        }
+
+                        if (variantRequest.getStock() < 0) {
+                            throw new RuntimeException("Variant stock cannot be negative");
+                        }
+
                         variant.setPrice(variantRequest.getPrice());
                         variant.setDiscountPrice(variantRequest.getDiscountPrice());
                         variant.setStock(variantRequest.getStock());
@@ -563,12 +614,15 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setDiscountPrice(request.getDiscountPrice());
         product.setStock(request.getStock());
+
         product.setSleeveType(request.getSleeveType());
         product.setDressLength(request.getDressLength());
         product.setFitType(request.getFitType());
         product.setHijabCompatible(request.isHijabCompatible());
         product.setTransparent(request.isTransparent());
         product.setOccasions(request.getOccasions());
+
+        // ================= UPDATE ATTRIBUTES =================
 
         product.getAttributes().clear();
 
@@ -597,47 +651,121 @@ public class ProductServiceImpl implements ProductService {
             product.getAttributes().addAll(attributes);
         }
 
+        // ================= UPDATE VARIANTS =================
+
         product.getVariants().clear();
 
         if (request.getVariants() != null) {
+
+            Set<String> variantCombinations = new HashSet<>();
 
             List<ProductVariant> variants = request.getVariants()
                     .stream()
                     .map(variantRequest -> {
 
+                        // Variant must have at least one option
+                        if (variantRequest.getOptions() == null
+                                || variantRequest.getOptions().isEmpty()) {
+
+                            throw new RuntimeException(
+                                    "Variant must have at least one option"
+                            );
+                        }
+
+                        // Create unique combination key
+                        String combination = variantRequest.getOptions()
+                                .stream()
+                                .sorted(
+                                        Comparator.comparing(
+                                                ProductVariantOptionRequest::getOptionName
+                                        )
+                                )
+                                .map(option ->
+                                        option.getOptionName()
+                                                + "="
+                                                + option.getOptionValue()
+                                )
+                                .collect(Collectors.joining("|"));
+
+                        // Prevent duplicate combinations
+                        if (!variantCombinations.add(combination)) {
+                            throw new RuntimeException(
+                                    "Duplicate variant combination: "
+                                            + combination
+                            );
+                        }
+
                         ProductVariant variant = new ProductVariant();
 
                         variant.setProduct(product);
+
+                        // ================= VARIANT VALIDATION =================
+
+                        if (variantRequest.getPrice() == null
+                                || variantRequest.getPrice() < 0) {
+
+                            throw new RuntimeException(
+                                    "Variant price cannot be negative"
+                            );
+                        }
+
+                        if (variantRequest.getDiscountPrice() != null
+                                && variantRequest.getDiscountPrice() < 0) {
+
+                            throw new RuntimeException(
+                                    "Variant discount price cannot be negative"
+                            );
+                        }
+
+                        if (variantRequest.getDiscountPrice() != null
+                                && variantRequest.getDiscountPrice()
+                                > variantRequest.getPrice()) {
+
+                            throw new RuntimeException(
+                                    "Variant discount price cannot be greater than price"
+                            );
+                        }
+
+                        if (variantRequest.getStock() < 0) {
+
+                            throw new RuntimeException(
+                                    "Variant stock cannot be negative"
+                            );
+                        }
+
+                        // ================= SET VARIANT DATA =================
+
                         variant.setPrice(variantRequest.getPrice());
                         variant.setDiscountPrice(
                                 variantRequest.getDiscountPrice()
                         );
                         variant.setStock(variantRequest.getStock());
 
-                        if (variantRequest.getOptions() != null) {
+                        // ================= VARIANT OPTIONS =================
 
-                            List<ProductVariantOption> options =
-                                    variantRequest.getOptions()
-                                            .stream()
-                                            .map(optionRequest -> {
+                        List<ProductVariantOption> options =
+                                variantRequest.getOptions()
+                                        .stream()
+                                        .map(optionRequest -> {
 
-                                                ProductVariantOption option =
-                                                        new ProductVariantOption();
+                                            ProductVariantOption option =
+                                                    new ProductVariantOption();
 
-                                                option.setVariant(variant);
-                                                option.setOptionName(
-                                                        optionRequest.getOptionName()
-                                                );
-                                                option.setOptionValue(
-                                                        optionRequest.getOptionValue()
-                                                );
+                                            option.setVariant(variant);
 
-                                                return option;
-                                            })
-                                            .toList();
+                                            option.setOptionName(
+                                                    optionRequest.getOptionName()
+                                            );
 
-                            variant.setOptions(options);
-                        }
+                                            option.setOptionValue(
+                                                    optionRequest.getOptionValue()
+                                            );
+
+                                            return option;
+                                        })
+                                        .toList();
+
+                        variant.setOptions(options);
 
                         return variant;
                     })
@@ -645,13 +773,19 @@ public class ProductServiceImpl implements ProductService {
 
             product.getVariants().addAll(variants);
         }
+
+        // ================= CATEGORY =================
+
         product.setCategory(category);
         product.setSubCategory(subCategory);
+
+        // ================= STATUS =================
 
         if (product.getStatus() == ProductStatus.ACTIVE) {
             product.setStatus(ProductStatus.PENDING);
         }
 
+        // ================= SAVE =================
 
         Product updatedProduct = productRepository.save(product);
 
@@ -671,7 +805,5 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.delete(product);
     }
-
-
 
 }
