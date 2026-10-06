@@ -2,13 +2,16 @@ package com.hayaawear.service.order;
 
 import com.hayaawear.dto.order.OrderResponse;
 import com.hayaawear.dto.order.PlaceOrderResponse;
+import com.hayaawear.entity.Address;
 import com.hayaawear.entity.OrderStatus;
 
 import java.util.List;
 
 public interface OrderService {
 
-    PlaceOrderResponse placeOrder(String userEmail);
+    public PlaceOrderResponse placeOrder(
+            String userEmail,
+            Address shippingAddress);
 
     List<OrderResponse> getMyOrders(String userEmail);
 

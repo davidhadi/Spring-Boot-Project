@@ -1,6 +1,7 @@
 package com.hayaawear.service.order;
 
 import com.hayaawear.dto.order.*;
+import com.hayaawear.dto.product.ProductVariantOptionResponse;
 import com.hayaawear.entity.*;
 import com.hayaawear.repository.*;
 import jakarta.transaction.Transactional;
@@ -31,7 +32,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public PlaceOrderResponse placeOrder(String userEmail) {
+    public PlaceOrderResponse placeOrder(
+            String userEmail,
+            Address shippingAddress) {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -44,27 +47,38 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order = new Order(user);
+        order.setShippingAddress(shippingAddress);
         double total = 0;
 
         for (CartItem cartItem : cart.getItems()) {
 
             Product product = cartItem.getProduct();
+            ProductVariant variant = cartItem.getVariant();
 
-            if (product.getStock() < cartItem.getQuantity()) {
+            // ================= VARIANT STOCK CHECK =================
+
+            if (variant.getStock() < cartItem.getQuantity()) {
                 throw new RuntimeException(
-                        "Insufficient stock for product: " + product.getName()
+                        "Insufficient stock for product: "
+                                + product.getName()
                 );
             }
 
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
+            // ================= REDUCE VARIANT STOCK =================
 
-            double price = product.getDiscountPrice() != null
-                    ? product.getDiscountPrice()
-                    : product.getPrice();
+            variant.setStock(
+                    variant.getStock() - cartItem.getQuantity()
+            );
+
+            // ================= USE CART PRICE =================
+
+            double price = cartItem.getPriceAtTime();
+
+            // ================= CREATE ORDER ITEM =================
 
             OrderItem orderItem = new OrderItem(
                     product,
+                    variant,
                     cartItem.getQuantity(),
                     price
             );
@@ -74,15 +88,23 @@ public class OrderServiceImpl implements OrderService {
             total += price * cartItem.getQuantity();
         }
 
+        // ================= ORDER TOTAL =================
+
         order.setTotalAmount(total);
 
+        // ================= SAVE ORDER =================
+
         Order savedOrder = orderRepository.save(order);
+
+        // ================= CLEAR CART =================
 
         cart.getItems().clear();
         cartRepository.save(cart);
 
         PlaceOrderResponse response = new PlaceOrderResponse();
+
         response.setOrderId(savedOrder.getId());
+        response.setTotalAmount(savedOrder.getTotalAmount());
         response.setMessage("Order placed successfully (COD)");
 
         return response;
@@ -97,23 +119,74 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findByUser(user)
                 .stream()
                 .map(order -> {
+
                     OrderResponse res = new OrderResponse();
+
                     res.setOrderId(order.getId());
                     res.setTotalAmount(order.getTotalAmount());
                     res.setStatus(order.getStatus());
                     res.setCreatedAt(order.getCreatedAt());
 
+                    Address address = order.getShippingAddress();
+
+                    OrderAddressResponse addressResponse = new OrderAddressResponse();
+
+                    addressResponse.setName(address.getName());
+                    addressResponse.setPhone(address.getPhone());
+                    addressResponse.setStreet(address.getStreet());
+                    addressResponse.setCity(address.getCity());
+                    addressResponse.setState(address.getState());
+                    addressResponse.setPincode(address.getPincode());
+
+                    res.setShippingAddress(addressResponse);
+
                     List<OrderItemResponse> items =
-                            order.getItems().stream().map(item -> {
-                                OrderItemResponse ir = new OrderItemResponse();
-                                ir.setProductId(item.getProduct().getId());
-                                ir.setProductName(item.getProduct().getName());
-                                ir.setQuantity(item.getQuantity());
-                                ir.setPrice(item.getPriceAtPurchase());
-                                return ir;
-                            }).collect(Collectors.toList());
+                            order.getItems()
+                                    .stream()
+                                    .map(item -> {
+
+                                        OrderItemResponse ir =
+                                                new OrderItemResponse();
+
+                                        ir.setProductId(
+                                                item.getProduct().getId()
+                                        );
+
+                                        ir.setProductName(
+                                                item.getProduct().getName()
+                                        );
+
+                                        // Variant information
+                                        ir.setVariantId(
+                                                item.getVariant().getId()
+                                        );
+
+                                        ir.setVariantOptions(
+                                                item.getVariant()
+                                                        .getOptions()
+                                                        .stream()
+                                                        .map(option ->
+                                                                new ProductVariantOptionResponse(
+                                                                        option.getOptionName(),
+                                                                        option.getOptionValue()
+                                                                )
+                                                        )
+                                                        .collect(Collectors.toList())
+                                        );
+
+                                        ir.setQuantity(item.getQuantity());
+
+                                        // Historical purchase price
+                                        ir.setPrice(
+                                                item.getPriceAtPurchase()
+                                        );
+
+                                        return ir;
+                                    })
+                                    .collect(Collectors.toList());
 
                     res.setItems(items);
+
                     return res;
                 })
                 .collect(Collectors.toList());
@@ -204,7 +277,9 @@ public class OrderServiceImpl implements OrderService {
                 .map(order -> mapToSellerOrderResponse(order, sellerEmail))
                 .toList();
     }
-    private OrderResponse mapToSellerOrderResponse(Order order, String sellerEmail) {
+    private OrderResponse mapToSellerOrderResponse(
+            Order order,
+            String sellerEmail) {
 
         OrderResponse response = new OrderResponse();
 
@@ -212,8 +287,26 @@ public class OrderServiceImpl implements OrderService {
         response.setStatus(order.getStatus());
         response.setCreatedAt(order.getCreatedAt());
 
+        // Shipping Address
+        Address address = order.getShippingAddress();
+
+        if (address != null) {
+
+            OrderAddressResponse addressResponse =
+                    new OrderAddressResponse();
+
+            addressResponse.setName(address.getName());
+            addressResponse.setPhone(address.getPhone());
+            addressResponse.setStreet(address.getStreet());
+            addressResponse.setCity(address.getCity());
+            addressResponse.setState(address.getState());
+            addressResponse.setPincode(address.getPincode());
+
+            response.setShippingAddress(addressResponse);
+        }
+
         List<OrderItemResponse> itemResponses =
-                order.getItems()   // ✅ YOUR field
+                order.getItems()
                         .stream()
                         .filter(item ->
                                 item.getProduct()
@@ -226,34 +319,55 @@ public class OrderServiceImpl implements OrderService {
                             OrderItemResponse itemRes =
                                     new OrderItemResponse();
 
+                            itemRes.setProductId(
+                                    item.getProduct().getId()
+                            );
+
                             itemRes.setProductName(
                                     item.getProduct().getName()
                             );
-                            itemRes.setQuantity(item.getQuantity());
-                            itemRes.setPrice(item.getPriceAtPurchase());
+
+                            itemRes.setVariantId(
+                                    item.getVariant().getId()
+                            );
+
+                            itemRes.setVariantOptions(
+                                    item.getVariant()
+                                            .getOptions()
+                                            .stream()
+                                            .map(option ->
+                                                    new ProductVariantOptionResponse(
+                                                            option.getOptionName(),
+                                                            option.getOptionValue()
+                                                    )
+                                            )
+                                            .collect(Collectors.toList())
+                            );
+
+                            itemRes.setQuantity(
+                                    item.getQuantity()
+                            );
+
+                            itemRes.setPrice(
+                                    item.getPriceAtPurchase()
+                            );
 
                             return itemRes;
+
                         })
                         .toList();
 
-        double sellerTotal = order.getItems()
-                .stream()
-                .filter(item ->
-                        item.getProduct()
-                                .getSeller()
-                                .getEmail()
-                                .equals(sellerEmail))
-                .mapToDouble(item ->
-                        item.getPriceAtPurchase() * item.getQuantity())
-                .sum();
+        double sellerTotal =
+                itemResponses.stream()
+                        .mapToDouble(item ->
+                                item.getPrice() * item.getQuantity()
+                        )
+                        .sum();
 
         response.setTotalAmount(sellerTotal);
-
         response.setItems(itemResponses);
 
         return response;
     }
-
-
 
 }

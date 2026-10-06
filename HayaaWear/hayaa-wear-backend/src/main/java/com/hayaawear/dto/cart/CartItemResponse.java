@@ -1,11 +1,19 @@
 package com.hayaawear.dto.cart;
 
+import com.hayaawear.dto.product.ProductVariantOptionResponse;
+
+import java.util.List;
+
 public class CartItemResponse {
 
     private Long itemId;
     private Long productId;
     private String productName;
-    private Double price;
+
+    private Long variantId;
+    private List<ProductVariantOptionResponse> variantOptions;
+
+    private double price;
     private int quantity;
 
     public CartItemResponse() {
@@ -35,11 +43,28 @@ public class CartItemResponse {
         this.productName = productName;
     }
 
-    public Double getPrice() {
+    public Long getVariantId() {
+        return variantId;
+    }
+
+    public void setVariantId(Long variantId) {
+        this.variantId = variantId;
+    }
+
+    public List<ProductVariantOptionResponse> getVariantOptions() {
+        return variantOptions;
+    }
+
+    public void setVariantOptions(
+            List<ProductVariantOptionResponse> variantOptions) {
+        this.variantOptions = variantOptions;
+    }
+
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 

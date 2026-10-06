@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 @Table(
         name = "cart_items",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"cart_id", "product_id"})
+                @UniqueConstraint(
+                        columnNames = {"cart_id", "product_id", "variant_id"}
+                )
         }
 )
 @Entity
@@ -23,24 +25,43 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "variant_id", nullable = false)
+    private ProductVariant variant;
+
     @Column(nullable = false)
     private int quantity;
 
     @Column(nullable = false)
     private Double priceAtTime;
+
     public CartItem() {
     }
 
-    public CartItem(Product product, int quantity, double priceAtTime) {
+    public CartItem(
+            Product product,
+            ProductVariant variant,
+            int quantity,
+            double priceAtTime) {
+
         this.product = product;
+        this.variant = variant;
         this.quantity = quantity;
         this.priceAtTime = priceAtTime;
     }
 
-    public CartItem(Cart cart, Product product, int quantity) {
+    public CartItem(
+            Cart cart,
+            Product product,
+            ProductVariant variant,
+            int quantity,
+            double priceAtTime) {
+
         this.cart = cart;
         this.product = product;
+        this.variant = variant;
         this.quantity = quantity;
+        this.priceAtTime = priceAtTime;
     }
 
     public Long getId() {
@@ -59,17 +80,24 @@ public class CartItem {
         return product;
     }
 
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public ProductVariant getVariant() {
+        return variant;
+    }
+
+    public void setVariant(ProductVariant variant) {
+        this.variant = variant;
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
     public Double getPriceAtTime() {

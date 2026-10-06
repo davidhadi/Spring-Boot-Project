@@ -13,6 +13,8 @@ public class OrderResponse {
     private LocalDateTime createdAt;
     private List<OrderItemResponse> items;
 
+    private OrderAddressResponse shippingAddress;
+
     public OrderResponse() {
     }
 
@@ -54,5 +56,13 @@ public class OrderResponse {
 
     public void setItems(List<OrderItemResponse> items) {
         this.items = items;
+    }
+
+    public OrderAddressResponse getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(OrderAddressResponse shippingAddress) {
+        this.shippingAddress = shippingAddress;
     }
 }

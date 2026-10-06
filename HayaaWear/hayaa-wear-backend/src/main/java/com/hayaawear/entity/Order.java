@@ -1,19 +1,15 @@
 package com.hayaawear.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
-public class Order {
+public class Order extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -24,15 +20,18 @@ public class Order {
     )
     private List<OrderItem> items = new ArrayList<>();
 
+    @Column(nullable = false)
     private Double totalAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id", nullable = false)
+    private Address shippingAddress;
 
     public Order() {
-        this.createdAt = LocalDateTime.now();
         this.status = OrderStatus.PLACED;
     }
 
@@ -41,16 +40,20 @@ public class Order {
         this.user = user;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public User getUser() {
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public List<OrderItem> getItems() {
         return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 
     public Double getTotalAmount() {
@@ -69,12 +72,16 @@ public class Order {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
     public void addItem(OrderItem item) {
         items.add(item);
         item.setOrder(this);
+    }
+
+    public Address getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(Address shippingAddress) {
+        this.shippingAddress = shippingAddress;
     }
 }

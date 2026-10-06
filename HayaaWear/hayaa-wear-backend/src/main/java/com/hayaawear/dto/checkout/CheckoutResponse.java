@@ -1,12 +1,12 @@
-package com.hayaawear.dto.order;
+package com.hayaawear.dto.checkout;
 
-public class PlaceOrderResponse {
+public class CheckoutResponse {
 
     private Long orderId;
     private Double totalAmount;
     private String message;
 
-    public PlaceOrderResponse() {
+    public CheckoutResponse() {
     }
 
     public Long getOrderId() {
@@ -17,19 +17,19 @@ public class PlaceOrderResponse {
         this.orderId = orderId;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public Double getTotalAmount() {
         return totalAmount;
     }
 
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
