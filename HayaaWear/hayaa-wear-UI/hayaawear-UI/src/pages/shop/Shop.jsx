@@ -37,9 +37,12 @@ const Shop = () => {
 
         setCategories(uniqueCategories);
         const categoryFromUrl = searchParams.get("category");
+        const occasionFromUrl = searchParams.get("occasion");
 
-        console.log("CATEGORY FROM URL:", categoryFromUrl);
-        console.log("ALL CATEGORIES:", uniqueCategories);
+
+if (occasionFromUrl) {
+  setSelectedOccasions([occasionFromUrl]);
+}
 
 if (categoryFromUrl) {
   const matchedCategory = uniqueCategories.find(

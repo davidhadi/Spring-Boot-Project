@@ -93,13 +93,18 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const shopItems = [
-    { label: "All Products", path: "/shop" },
-    { label: "Abaya", path: "/shop?category=Abaya" },
-    { label: "Hijab", path: "/shop?category=Hijab" },
-    { label: "Niqab", path: "/shop?category=Niqab" },
-    { label: "Wedding Wear", path: "/shop?category=Wedding" },
-  ];
+ const shopItems = [
+  { label: "All Products", path: "/shop" },
+  { label: "Abayas", path: "/shop?category=Abayas" },
+  { label: "Hijabs", path: "/shop?category=Hijabs" },
+  { label: "Niqabs", path: "/shop?category=Niqabs" },
+  { label: "Wedding Wear", path: "/shop?category=Wedding" },
+
+  // Coming Soon Categories
+  { label: "Pashmina", path: "/shop?category=Pashmina" },
+  { label: "Earrings", path: "/shop?category=Earrings" },
+  { label: "Shoes", path: "/shop?category=Shoes" },
+];
 
   const occasionItems = [
     { label: "Eid", path: "/shop?occasion=EID" },
@@ -161,8 +166,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute left-1/2 top-10 w-52 -translate-x-1/2 overflow-hidden rounded-2xl border border-[#d4af37]/20 bg-[#111827]/98 p-2 shadow-2xl backdrop-blur-xl"
-                >
+                 className="absolute left-1/2 top-10 z-50 w-56 -translate-x-1/2 overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-[#0b0f19] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]"  >
                   {shopItems.map((item) => (
                     <Link
                       key={item.label}
@@ -207,8 +211,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute left-1/2 top-10 w-48 -translate-x-1/2 overflow-hidden rounded-2xl border border-[#d4af37]/20 bg-[#111827]/98 p-2 shadow-2xl backdrop-blur-xl"
-                >
+                  className="absolute left-1/2 top-10 z-50 w-52 -translate-x-1/2 overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-[#0b0f19] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]" >
                   {occasionItems.map((item) => (
                     <Link
                       key={item.label}
@@ -324,8 +327,7 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 top-12 w-56 overflow-hidden rounded-2xl border border-[#d4af37]/20 bg-[#111827]/98 p-2 shadow-2xl backdrop-blur-xl"
-                  >
+                  className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-[#0b0f19] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.6)]" >
                     <Link
                       to="/profile"
                       onClick={() => setProfileOpen(false)}
