@@ -35,6 +35,10 @@ public class ProductRequest {
 
     private Set<OccasionType> occasions;
 
+    private List<ProductAttributeRequest> attributes;
+
+    private List<ProductVariantRequest> variants;
+
     public ProductRequest() {}
 
     // getters & setters
@@ -76,4 +80,20 @@ public class ProductRequest {
 
     public Set<OccasionType> getOccasions() { return occasions; }
     public void setOccasions(Set<OccasionType> occasions) { this.occasions = occasions; }
+
+    public List<ProductAttributeRequest> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<ProductAttributeRequest> attributes) {
+        this.attributes = attributes;
+    }
+
+    public List<ProductVariantRequest> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariantRequest> variants) {
+        this.variants = variants;
+    }
 }

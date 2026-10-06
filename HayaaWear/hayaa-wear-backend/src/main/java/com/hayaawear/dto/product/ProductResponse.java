@@ -22,8 +22,12 @@ public class ProductResponse {
 
     private Set<OccasionType> occasions;
 
+    private List<ProductAttributeResponse> attributes;
+
     // 🔥 NEW
     private List<ProductImageResponse> images;
+
+    private List<ProductVariantResponse> variants;
 
     public ProductResponse() {
     }
@@ -108,5 +112,21 @@ public class ProductResponse {
 
     public void setImages(List<ProductImageResponse> images) {
         this.images = images;
+    }
+
+    public List<ProductAttributeResponse> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<ProductAttributeResponse> attributes) {
+        this.attributes = attributes;
+    }
+
+    public List<ProductVariantResponse> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariantResponse> variants) {
+        this.variants = variants;
     }
 }

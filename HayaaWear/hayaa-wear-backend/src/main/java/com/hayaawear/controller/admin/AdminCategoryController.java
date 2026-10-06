@@ -2,6 +2,7 @@ package com.hayaawear.controller.admin;
 
 import com.hayaawear.entity.Category;
 import com.hayaawear.repository.CategoryRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,11 +32,13 @@ public class AdminCategoryController {
 
     // DELETE CATEGORY
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteCategory(@PathVariable Long id) {
         categoryRepository.deleteById(id);
     }
 
     @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('ADMIN')")
     public Category addCategory(
             @RequestParam("name") String name,
             @RequestParam(value = "image", required = false) MultipartFile image,

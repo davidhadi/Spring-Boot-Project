@@ -60,6 +60,20 @@ public class Product extends BaseEntity {
     @JsonManagedReference
     private List<ProductImage> images = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProductAttribute> attributes = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProductVariant> variants = new ArrayList<>();
+
     public String getName() {
         return name;
     }
@@ -194,5 +208,21 @@ public class Product extends BaseEntity {
 
     public void setImages(List<ProductImage> images) {
         this.images = images;
+    }
+
+    public List<ProductAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<ProductAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    public List<ProductVariant> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariant> variants) {
+        this.variants = variants;
     }
 }

@@ -1,9 +1,6 @@
 package com.hayaawear.service.product;
 
-import com.hayaawear.dto.product.ProductImageResponse;
-import com.hayaawear.dto.product.ProductListResponse;
-import com.hayaawear.dto.product.ProductRequest;
-import com.hayaawear.dto.product.ProductResponse;
+import com.hayaawear.dto.product.*;
 import com.hayaawear.entity.*;
 import com.hayaawear.productspecification.ProductSpecification;
 import com.hayaawear.repository.*;
@@ -80,6 +77,75 @@ public class ProductServiceImpl implements ProductService {
         product.setSeller(seller);
 
         product.setStatus(ProductStatus.PENDING);
+
+        if (request.getAttributes() != null) {
+
+            List<ProductAttribute> attributes = request.getAttributes()
+                    .stream()
+                    .map(attributeRequest -> {
+
+                        ProductAttribute attribute = new ProductAttribute();
+
+                        attribute.setAttributeName(
+                                attributeRequest.getAttributeName()
+                        );
+
+                        attribute.setAttributeValue(
+                                attributeRequest.getAttributeValue()
+                        );
+
+                        attribute.setProduct(product);
+
+                        return attribute;
+                    })
+                    .toList();
+
+            product.setAttributes(attributes);
+        }
+        if (request.getVariants() != null) {
+
+            List<ProductVariant> variants = request.getVariants()
+                    .stream()
+                    .map(variantRequest -> {
+
+                        ProductVariant variant = new ProductVariant();
+
+                        variant.setProduct(product);
+                        variant.setPrice(variantRequest.getPrice());
+                        variant.setDiscountPrice(variantRequest.getDiscountPrice());
+                        variant.setStock(variantRequest.getStock());
+
+                        if (variantRequest.getOptions() != null) {
+
+                            List<ProductVariantOption> options =
+                                    variantRequest.getOptions()
+                                            .stream()
+                                            .map(optionRequest -> {
+
+                                                ProductVariantOption option =
+                                                        new ProductVariantOption();
+
+                                                option.setVariant(variant);
+                                                option.setOptionName(
+                                                        optionRequest.getOptionName()
+                                                );
+                                                option.setOptionValue(
+                                                        optionRequest.getOptionValue()
+                                                );
+
+                                                return option;
+                                            })
+                                            .toList();
+
+                            variant.setOptions(options);
+                        }
+
+                        return variant;
+                    })
+                    .toList();
+
+            product.setVariants(variants);
+        }
 
         Product savedProduct = productRepository.save(product);
 
@@ -180,6 +246,58 @@ public class ProductServiceImpl implements ProductService {
             );
         }
 
+        if (product.getAttributes() != null) {
+            response.setAttributes(
+                    product.getAttributes()
+                            .stream()
+                            .map(attribute ->
+                                    new ProductAttributeResponse(
+                                            attribute.getAttributeName(),
+                                            attribute.getAttributeValue()
+                                    )
+                            )
+                            .toList()
+            );
+        }
+
+        if (product.getVariants() != null) {
+
+            response.setVariants(
+                    product.getVariants()
+                            .stream()
+                            .map(variant -> {
+
+                                ProductVariantResponse variantResponse =
+                                        new ProductVariantResponse();
+
+                                variantResponse.setId(variant.getId());
+                                variantResponse.setPrice(variant.getPrice());
+                                variantResponse.setDiscountPrice(
+                                        variant.getDiscountPrice()
+                                );
+                                variantResponse.setStock(variant.getStock());
+
+                                if (variant.getOptions() != null) {
+
+                                    variantResponse.setOptions(
+                                            variant.getOptions()
+                                                    .stream()
+                                                    .map(option ->
+                                                            new ProductVariantOptionResponse(
+                                                                    option.getOptionName(),
+                                                                    option.getOptionValue()
+                                                            )
+                                                    )
+                                                    .toList()
+                                    );
+                                }
+
+                                return variantResponse;
+                            })
+                            .toList()
+            );
+        }
+
         return response;
     }
 
@@ -243,6 +361,57 @@ public class ProductServiceImpl implements ProductService {
                         .toList();
 
         response.setImages(imageResponses);
+
+        if (product.getVariants() != null) {
+
+            response.setVariants(
+                    product.getVariants()
+                            .stream()
+                            .map(variant -> {
+
+                                ProductVariantResponse variantResponse =
+                                        new ProductVariantResponse();
+
+                                variantResponse.setId(variant.getId());
+                                variantResponse.setPrice(variant.getPrice());
+                                variantResponse.setDiscountPrice(
+                                        variant.getDiscountPrice()
+                                );
+                                variantResponse.setStock(variant.getStock());
+
+                                if (variant.getOptions() != null) {
+
+                                    variantResponse.setOptions(
+                                            variant.getOptions()
+                                                    .stream()
+                                                    .map(option ->
+                                                            new ProductVariantOptionResponse(
+                                                                    option.getOptionName(),
+                                                                    option.getOptionValue()
+                                                            )
+                                                    )
+                                                    .toList()
+                                    );
+                                }
+
+                                return variantResponse;
+                            })
+                            .toList()
+            );
+        }
+        if (product.getAttributes() != null) {
+            response.setAttributes(
+                    product.getAttributes()
+                            .stream()
+                            .map(attribute ->
+                                    new ProductAttributeResponse(
+                                            attribute.getAttributeName(),
+                                            attribute.getAttributeValue()
+                                    )
+                            )
+                            .toList()
+            );
+        }
 
         return response;
     }
@@ -400,14 +569,91 @@ public class ProductServiceImpl implements ProductService {
         product.setHijabCompatible(request.isHijabCompatible());
         product.setTransparent(request.isTransparent());
         product.setOccasions(request.getOccasions());
+
+        product.getAttributes().clear();
+
+        if (request.getAttributes() != null) {
+
+            List<ProductAttribute> attributes = request.getAttributes()
+                    .stream()
+                    .map(attributeRequest -> {
+
+                        ProductAttribute attribute = new ProductAttribute();
+
+                        attribute.setAttributeName(
+                                attributeRequest.getAttributeName()
+                        );
+
+                        attribute.setAttributeValue(
+                                attributeRequest.getAttributeValue()
+                        );
+
+                        attribute.setProduct(product);
+
+                        return attribute;
+                    })
+                    .toList();
+
+            product.getAttributes().addAll(attributes);
+        }
+
+        product.getVariants().clear();
+
+        if (request.getVariants() != null) {
+
+            List<ProductVariant> variants = request.getVariants()
+                    .stream()
+                    .map(variantRequest -> {
+
+                        ProductVariant variant = new ProductVariant();
+
+                        variant.setProduct(product);
+                        variant.setPrice(variantRequest.getPrice());
+                        variant.setDiscountPrice(
+                                variantRequest.getDiscountPrice()
+                        );
+                        variant.setStock(variantRequest.getStock());
+
+                        if (variantRequest.getOptions() != null) {
+
+                            List<ProductVariantOption> options =
+                                    variantRequest.getOptions()
+                                            .stream()
+                                            .map(optionRequest -> {
+
+                                                ProductVariantOption option =
+                                                        new ProductVariantOption();
+
+                                                option.setVariant(variant);
+                                                option.setOptionName(
+                                                        optionRequest.getOptionName()
+                                                );
+                                                option.setOptionValue(
+                                                        optionRequest.getOptionValue()
+                                                );
+
+                                                return option;
+                                            })
+                                            .toList();
+
+                            variant.setOptions(options);
+                        }
+
+                        return variant;
+                    })
+                    .toList();
+
+            product.getVariants().addAll(variants);
+        }
         product.setCategory(category);
         product.setSubCategory(subCategory);
-
-        Product updatedProduct = productRepository.save(product);
 
         if (product.getStatus() == ProductStatus.ACTIVE) {
             product.setStatus(ProductStatus.PENDING);
         }
+
+
+        Product updatedProduct = productRepository.save(product);
 
         return mapToResponse(updatedProduct);
     }

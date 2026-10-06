@@ -80,9 +80,6 @@ if (categoryFromUrl) {
       product.occasions?.includes(occasion)
     );
 
-    console.log("PRODUCTS:", products);
-console.log("SELECTED OCCASIONS:", selectedOccasions);
-
   return categoryMatch && occasionMatch;
 });
 
