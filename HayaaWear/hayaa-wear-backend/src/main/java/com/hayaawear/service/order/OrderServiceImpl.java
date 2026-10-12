@@ -4,6 +4,7 @@ import com.hayaawear.dto.order.*;
 import com.hayaawear.dto.product.ProductVariantOptionResponse;
 import com.hayaawear.entity.*;
 import com.hayaawear.repository.*;
+import com.hayaawear.service.payment.PaymentService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +18,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final PaymentService paymentService;
 
     public OrderServiceImpl(
+            UserRepository userRepository,
             CartRepository cartRepository,
             OrderRepository orderRepository,
-            UserRepository userRepository,
-            ProductRepository productRepository
-    ) {
+            ProductRepository productRepository,
+            PaymentService paymentService) {
+
+        this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.paymentService = paymentService;
     }
 
     @Transactional
@@ -95,6 +99,8 @@ public class OrderServiceImpl implements OrderService {
         // ================= SAVE ORDER =================
 
         Order savedOrder = orderRepository.save(order);
+
+        paymentService.createCodPayment(savedOrder);
 
         // ================= CLEAR CART =================
 
