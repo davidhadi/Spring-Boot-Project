@@ -43,11 +43,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new RuntimeException("User not found!"));
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() ->
-                        new RuntimeException("Order not found"));
+                        new RuntimeException("Order not found!"));
 
         if (!order.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Not allowed");
