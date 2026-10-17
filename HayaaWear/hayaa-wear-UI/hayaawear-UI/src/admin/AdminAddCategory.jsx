@@ -62,7 +62,7 @@ const AdminAddCategory = () => {
 
     } catch (error) {
       console.error(error);
-      setMessage("Error creating category ❌");
+      setMessage("Error creating category! ❌");
     } finally {
       setLoading(false);
     }
