@@ -85,8 +85,8 @@ function App() {
 />
 
 <Route
-  path="/seller/products/add"
-  element={
+    path="/seller/products/add"
+   element={
     <ProtectedRoute allowedRoles={["SELLER"]}>
       <AddProduct />
     </ProtectedRoute>
