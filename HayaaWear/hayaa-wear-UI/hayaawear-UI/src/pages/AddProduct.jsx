@@ -1,20 +1,25 @@
+
 import { useState, useEffect } from "react";
 import API from "../services/api";
 
 const AddProduct = () => {
-
-  const sleeveTypes = ["FULL", "THREE_QUARTER"];
+  const sleeveTypes = ["FULL", "THREE_FOURTH"];
   const dressLengths = ["FLOOR", "ANKLE"];
   const fitTypes = ["LOOSE", "REGULAR", "SLIM"];
-  const occasionTypes = ["EID", "NIKAH", "MEHNDI", "WALIMA", "DAILY"];
+  const occasionTypes = [
+    "EID",
+    "NIKAH",
+    "MEHNDI",
+    "WALIMA",
+    "DAILY_WEAR",
+  ];
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-
   const [images, setImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
 
-  const [form, setForm] = useState({
+  const initialForm = {
     name: "",
     description: "",
     price: "",
@@ -27,40 +32,43 @@ const AddProduct = () => {
     fitType: "",
     hijabCompatible: false,
     transparent: false,
-    occasions: []
-  });
+    occasions: [],
+  };
+
+  const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
-    const res = await API.get("/admin/categories");
-    setCategories(res.data);
+    try {
+      const res = await API.get("/admin/categories");
+      setCategories(res.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   };
 
   const fetchSubCategories = async (categoryId) => {
     try {
-      const res = await API.get(`/admin/subcategories/category/${Number(categoryId)}`);
+      const res = await API.get(
+        `/admin/subcategories/category/${Number(categoryId)}`
+      );
       setSubCategories(res.data);
     } catch (error) {
-      console.error("Error fetching subcategories", error);
+      console.error("Error fetching subcategories:", error);
     }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setForm(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-
     if (name === "categoryId") {
-      setForm(prev => ({
+      setForm((prev) => ({
         ...prev,
         categoryId: value,
-        subCategoryId: ""
+        subCategoryId: "",
       }));
 
       setSubCategories([]);
@@ -68,105 +76,82 @@ const AddProduct = () => {
       if (value) {
         fetchSubCategories(value);
       }
+
+      return;
     }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleOccasionChange = (e) => {
     const { value, checked } = e.target;
 
-    if (checked) {
-      setForm({
-        ...form,
-        occasions: [...form.occasions, value]
-      });
-    } else {
-      setForm({
-        ...form,
-        occasions: form.occasions.filter(o => o !== value)
-      });
-    }
+    setForm((prev) => ({
+      ...prev,
+      occasions: checked
+        ? [...prev.occasions, value]
+        : prev.occasions.filter((occasion) => occasion !== value),
+    }));
   };
 
   const handleImageChange = (e) => {
-
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
 
     setImages(files);
-
-    const preview = files.map(file => URL.createObjectURL(file));
-    setPreviewImages(preview);
+    setPreviewImages(files.map((file) => URL.createObjectURL(file)));
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
-
-      const res = await API.post("/products", {
+      const payload = {
         ...form,
         price: Number(form.price),
-        discountPrice: Number(form.discountPrice),
+        discountPrice:
+          form.discountPrice === "" ? null : Number(form.discountPrice),
         stock: Number(form.stock),
         categoryId: Number(form.categoryId),
-        subCategoryId: Number(form.subCategoryId)
-      });
+        subCategoryId: Number(form.subCategoryId),
+      };
 
+      const res = await API.post("/products", payload);
       const productId = res.data.id;
 
-      // Upload Multiple Images
+      // Upload images after product creation
       if (images.length > 0) {
-
         const formData = new FormData();
 
-        images.forEach(img => {
-          formData.append("images", img);
+        images.forEach((img) => {
+          formData.append("file", img);
         });
 
-        await API.post(`/products/${productId}/images`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await API.post(`/products/${productId}/images`, formData);
       }
 
       alert("Product Created Successfully ✅");
 
-      setForm({
-        name: "",
-        description: "",
-        price: "",
-        discountPrice: "",
-        stock: "",
-        categoryId: "",
-        subCategoryId: "",
-        sleeveType: "",
-        dressLength: "",
-        fitType: "",
-        hijabCompatible: false,
-        transparent: false,
-        occasions: []
-      });
-
+      setForm({ ...initialForm });
       setImages([]);
       setPreviewImages([]);
-
+      setSubCategories([]);
     } catch (error) {
-
-      console.error(error);
-      alert("Error creating product ❌");
-
+      console.error("Error creating product:", error.response || error);
+      alert(
+        error.response?.data?.message ||
+          "Product creation failed. Check the backend console."
+      );
     }
-
   };
 
   return (
     <div className="min-h-screen pt-28 px-8 text-yellow-100 bg-black">
-
-      <h2 className="text-3xl mb-8 text-yellow-400">
-        Add Product
-      </h2>
+      <h2 className="text-3xl mb-8 text-yellow-400">Add Product</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-
         <input
           name="name"
           placeholder="Product Name"
@@ -189,6 +174,8 @@ const AddProduct = () => {
           type="number"
           name="price"
           placeholder="Price"
+          min="0"
+          step="0.01"
           value={form.price}
           onChange={handleChange}
           className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
@@ -198,7 +185,9 @@ const AddProduct = () => {
         <input
           type="number"
           name="discountPrice"
-          placeholder="Discount Price"
+          placeholder="Discount Price (Optional)"
+          min="0"
+          step="0.01"
           value={form.discountPrice}
           onChange={handleChange}
           className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
@@ -208,6 +197,7 @@ const AddProduct = () => {
           type="number"
           name="stock"
           placeholder="Stock"
+          min="0"
           value={form.stock}
           onChange={handleChange}
           className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
@@ -223,8 +213,10 @@ const AddProduct = () => {
           required
         >
           <option value="">Select Category</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
           ))}
         </select>
 
@@ -238,18 +230,129 @@ const AddProduct = () => {
           required
         >
           <option value="">Select SubCategory</option>
-          {subCategories.map(sub => (
-            <option key={sub.id} value={sub.id}>{sub.name}</option>
+          {subCategories.map((sub) => (
+            <option key={sub.id} value={sub.id}>
+              {sub.name}
+            </option>
           ))}
         </select>
 
+        {/* Sleeve Type */}
+        <div>
+          <label className="block mb-2">Sleeve Type</label>
+          <select
+            name="sleeveType"
+            value={form.sleeveType}
+            onChange={handleChange}
+            className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
+            required
+          >
+            <option value="">Select Sleeve Type</option>
+            {sleeveTypes.map((type) => (
+              <option key={type} value={type}>
+                {type.replace("_", " ")}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Dress Length */}
+        <div>
+          <label className="block mb-2">Dress Length</label>
+          <select
+            name="dressLength"
+            value={form.dressLength}
+            onChange={handleChange}
+            className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
+            required
+          >
+            <option value="">Select Dress Length</option>
+            {dressLengths.map((length) => (
+              <option key={length} value={length}>
+                {length}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Fit Type */}
+        <div>
+          <label className="block mb-2">Fit Type</label>
+          <select
+            name="fitType"
+            value={form.fitType}
+            onChange={handleChange}
+            className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
+            required
+          >
+            <option value="">Select Fit Type</option>
+            {fitTypes.map((fit) => (
+              <option key={fit} value={fit}>
+                {fit}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Boolean Attributes */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="hijabCompatible"
+              checked={form.hijabCompatible}
+              onChange={handleChange}
+              className="accent-yellow-500"
+            />
+            Hijab Compatible
+          </label>
+
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="transparent"
+              checked={form.transparent}
+              onChange={handleChange}
+              className="accent-yellow-500"
+            />
+            Transparent Fabric
+          </label>
+        </div>
+
+        {/* Occasions */}
+        <div>
+          <p className="mb-3 font-medium">Suitable Occasions</p>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {occasionTypes.map((occasion) => (
+              <label
+                key={occasion}
+                className="flex items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  value={occasion}
+                  checked={form.occasions.includes(occasion)}
+                  onChange={handleOccasionChange}
+                  className="accent-yellow-500"
+                />
+                {occasion.replace("_", " ")}
+              </label>
+            ))}
+          </div>
+        </div>
+
         {/* Image Upload */}
-        <input
-          type="file"
-          multiple
-          onChange={handleImageChange}
-          className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
-        />
+        <div>
+          <label className="block mb-2">Product Images</label>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            onChange={handleImageChange}
+            className="w-full p-3 bg-black/60 border border-yellow-600/40 rounded-xl"
+          />
+        </div>
 
         {/* Image Preview */}
         {previewImages.length > 0 && (
@@ -258,8 +361,8 @@ const AddProduct = () => {
               <img
                 key={index}
                 src={img}
-                alt="preview"
-                className="h-28 object-cover rounded-lg border border-yellow-600"
+                alt={`Product preview ${index + 1}`}
+                className="h-28 w-full object-cover rounded-lg border border-yellow-600"
               />
             ))}
           </div>
@@ -271,9 +374,7 @@ const AddProduct = () => {
         >
           Save Product
         </button>
-
       </form>
-
     </div>
   );
 };

@@ -10,6 +10,9 @@ const SellerProducts = () => {
     try {
       setLoading(true);
       const res = await API.get("/products/seller");
+
+      console.log("Seller products response:", res.data);
+      
       setProducts(res.data.content || res.data);
     } catch (err) {
       console.error("Seller products error:", err);
