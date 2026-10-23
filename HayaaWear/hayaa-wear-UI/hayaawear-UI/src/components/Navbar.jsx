@@ -18,6 +18,7 @@ import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { AuthContext } from "../context/AuthContext";
 import logo from "../assets/hayaawear_logo.png";
+import API from "../services/api";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -30,6 +31,7 @@ const Navbar = () => {
   const [occasionOpen, setOccasionOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [shopCategories, setShopCategories] = useState([]);
 
   const shopRef = useRef(null);
   const occasionRef = useRef(null);
@@ -44,6 +46,28 @@ const Navbar = () => {
 
   const isAdmin = user?.role === "ADMIN";
   const isSeller = user?.role === "SELLER";
+
+  // Load available categories from products so Shop links always match real categories.
+  useEffect(() => {
+    const loadShopCategories = async () => {
+      try {
+        const response = await API.get("/products/all");
+        const productData = Array.isArray(response.data) ? response.data : [];
+        const uniqueCategories = Array.from(
+          new Map(
+            productData
+              .filter((product) => product.category?.id != null)
+              .map((product) => [String(product.category.id), product.category])
+          ).values()
+        );
+        setShopCategories(uniqueCategories);
+      } catch (error) {
+        console.error("Failed to load shop categories:", error);
+      }
+    };
+
+    loadShopCategories();
+  }, []);
 
   // CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
   useEffect(() => {
@@ -93,18 +117,13 @@ const Navbar = () => {
     navigate("/");
   };
 
- const shopItems = [
-  { label: "All Products", path: "/shop" },
-  { label: "Abayas", path: "/shop?category=Abayas" },
-  { label: "Hijabs", path: "/shop?category=Hijabs" },
-  { label: "Niqabs", path: "/shop?category=Niqabs" },
-  { label: "Wedding Wear", path: "/shop?category=Wedding" },
-
-  // Coming Soon Categories
-  { label: "Pashmina", path: "/shop?category=Pashmina" },
-  { label: "Earrings", path: "/shop?category=Earrings" },
-  { label: "Shoes", path: "/shop?category=Shoes" },
-];
+  const shopItems = [
+    { label: "All Products", path: "/shop" },
+    ...shopCategories.map((category) => ({
+      label: category.name,
+      path: `/shop?category=${encodeURIComponent(String(category.id))}`,
+    })),
+  ];
 
   const occasionItems = [
     { label: "Eid", path: "/shop?occasion=EID" },
@@ -406,13 +425,37 @@ const Navbar = () => {
           >
             <div className="space-y-2 px-5 py-5">
 
-              <Link
-                to="/shop"
-                onClick={closeMobile}
-                className="block rounded-xl px-4 py-3 text-gray-200 hover:bg-[#d4af37]/10 hover:text-[#d4af37]"
-              >
-                Shop
-              </Link>
+              <div className="rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShopOpen((prev) => !prev)}
+                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-gray-200 hover:bg-[#d4af37]/10 hover:text-[#d4af37]"
+                >
+                  Shop
+                  <ChevronDown size={16} className={`transition-transform ${shopOpen ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {shopOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden px-2 pb-2"
+                    >
+                      {shopItems.map((item) => (
+                        <Link
+                          key={item.label}
+                          to={item.path}
+                          onClick={closeMobile}
+                          className="block rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:bg-[#d4af37]/10 hover:text-[#d4af37]"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <Link
                 to="/shop"

@@ -14,74 +14,66 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState("featured");
   const [mobileFilter, setMobileFilter] = useState(false);
 
+  // Load products once. Categories are derived from the product response.
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const [productsRes, allProductsRes] = await Promise.all([
-          API.get("/products/all"),
-          API.get("/products/all"),
-        ]);
-
-        const productData = productsRes.data || [];
-        const allProducts = allProductsRes.data || [];
+        const response = await API.get("/products/all");
+        const productData = Array.isArray(response.data) ? response.data : [];
 
         setProducts(productData);
 
         const uniqueCategories = Array.from(
           new Map(
-            allProducts
-              .filter((p) => p.category)
-              .map((p) => [p.category.id, p.category])
+            productData
+              .filter((product) => product.category?.id != null)
+              .map((product) => [String(product.category.id), product.category])
           ).values()
         );
 
         setCategories(uniqueCategories);
-        const categoryFromUrl = searchParams.get("category");
-        const occasionFromUrl = searchParams.get("occasion");
-
-
-if (occasionFromUrl) {
-  setSelectedOccasions([occasionFromUrl]);
-}
-
-if (categoryFromUrl) {
-  const matchedCategory = uniqueCategories.find(
-    (category) =>
-      category.name.toLowerCase() === categoryFromUrl.toLowerCase()
-  );
-
-  if (matchedCategory) {
-    console.log("MATCHED CATEGORY:", matchedCategory);
-    setSelectedCategory(matchedCategory.id);
-  }
-}
       } catch (error) {
         console.error("Shop API Error:", error);
       }
     };
 
     loadProducts();
-  }, [searchParams]);
+  }, []);
+
+  // Keep filters in sync with links from the Navbar, including category IDs or names.
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+    const occasionFromUrl = searchParams.get("occasion");
+
+    if (!categoryFromUrl) {
+      setSelectedCategory("All");
+    } else {
+      const matchedCategory = categories.find(
+        (category) =>
+          String(category.id) === categoryFromUrl ||
+          category.name?.toLowerCase() === categoryFromUrl.toLowerCase()
+      );
+
+      setSelectedCategory(matchedCategory ? String(matchedCategory.id) : "All");
+    }
+
+    setSelectedOccasions(occasionFromUrl ? [occasionFromUrl.toUpperCase()] : []);
+  }, [searchParams, categories]);
 
   /* ---------------- FILTER ---------------- */
 
 
   const filteredProducts = products.filter((product) => {
+    const categoryMatch =
+      selectedCategory === "All" ||
+      String(product.category?.id) === String(selectedCategory);
 
-  // Category filter
-  const categoryMatch =
-    selectedCategory === "All" ||
-    product.category?.id === selectedCategory;
+    const occasionMatch =
+      selectedOccasions.length === 0 ||
+      selectedOccasions.some((occasion) => product.occasions?.includes(occasion));
 
-  // Occasion filter
-  const occasionMatch =
-    selectedOccasions.length === 0 ||
-    selectedOccasions.some((occasion) =>
-      product.occasions?.includes(occasion)
-    );
-
-  return categoryMatch && occasionMatch;
-});
+    return categoryMatch && occasionMatch;
+  });
 
   /* ---------------- SORT ---------------- */
 
@@ -344,7 +336,7 @@ if (categoryFromUrl) {
                     <button
                       key={category.id}
                       onClick={() =>
-                        setSelectedCategory(category.id)
+                        setSelectedCategory(String(category.id))
                       }
                       className={`
                         w-full text-left
@@ -353,7 +345,7 @@ if (categoryFromUrl) {
                         text-sm
                         transition-all duration-300
                         ${
-                          selectedCategory === category.id
+                          String(selectedCategory) === String(category.id)
                             ? "bg-[#d4af37] text-[#111827] font-semibold"
                             : "text-gray-300 hover:bg-white/5 hover:text-[#d4af37]"
                         }
@@ -593,7 +585,7 @@ if (categoryFromUrl) {
                 <button
                   key={category.id}
                   onClick={() => {
-                    setSelectedCategory(category.id);
+                    setSelectedCategory(String(category.id));
                     setMobileFilter(false);
                   }}
                   className="
