@@ -502,7 +502,7 @@ const Navbar = () => {
                   onClick={closeMobile}
                   className="mt-3 block rounded-xl bg-[#d4af37] px-4 py-3 text-center font-semibold text-[#0b0f19]"
                 >
-                  Login
+                  Sign In
                 </Link>
               ) : (
                 <>
@@ -550,6 +550,7 @@ const Navbar = () => {
             </div>
           </motion.div>
         )}
+
       </AnimatePresence>
     </nav>
   );
