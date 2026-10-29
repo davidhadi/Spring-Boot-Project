@@ -107,11 +107,10 @@ public class ProductServiceImpl implements ProductService {
 
         if (request.getVariants() != null) {
 
+            Set<String> variantCombinations = new HashSet<>();
             List<ProductVariant> variants = request.getVariants()
                     .stream()
                     .map(variantRequest -> {
-
-                        Set<String> variantCombinations = new HashSet<>();
 
                         ProductVariant variant = new ProductVariant();
 
@@ -150,7 +149,7 @@ public class ProductServiceImpl implements ProductService {
                                 && variantRequest.getDiscountPrice() < 0) {
                             throw new RuntimeException("Variant discount price cannot be negative");
                         }
-
+//                        Shakilar@123
                         if (variantRequest.getDiscountPrice() != null
                                 && variantRequest.getDiscountPrice() > variantRequest.getPrice()) {
                             throw new RuntimeException(
