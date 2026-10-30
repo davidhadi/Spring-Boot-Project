@@ -149,7 +149,6 @@ public class ProductServiceImpl implements ProductService {
                                 && variantRequest.getDiscountPrice() < 0) {
                             throw new RuntimeException("Variant discount price cannot be negative");
                         }
-//                        Shakilar@123
                         if (variantRequest.getDiscountPrice() != null
                                 && variantRequest.getDiscountPrice() > variantRequest.getPrice()) {
                             throw new RuntimeException(
