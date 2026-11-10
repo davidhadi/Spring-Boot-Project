@@ -380,7 +380,6 @@ const AddProduct = () => {
       categoryId: Number(form.categoryId),
       subCategoryId: Number(form.subCategoryId),
 
-      // Clothing enums are only populated for clothing products.
       sleeveType: isClothing ? form.sleeveType || null : null,
       dressLength: isClothing ? form.dressLength || null : null,
       fitType: isClothing ? form.fitType || null : null,
