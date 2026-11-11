@@ -146,44 +146,44 @@ const AdminAddCategory = () => {
                   {cat.name}
                 </h4>
 
-               <div className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#111] to-[#1a1a1a] border border-yellow-600/30 shadow-[0_0_40px_rgba(212,175,55,0.15)] hover:shadow-[0_0_60px_rgba(212,175,55,0.35)] transition-all duration-500 hover:-translate-y-2">
+                <div className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#111] to-[#1a1a1a] border border-yellow-600/30 shadow-[0_0_40px_rgba(212,175,55,0.15)] hover:shadow-[0_0_60px_rgba(212,175,55,0.35)] transition-all duration-500 hover:-translate-y-2">
 
-  {/* MAIN CATEGORY IMAGE */}
-  {cat.imageUrl && (
-    <div className="relative aspect-[4/5] w-full overflow-hidden">
+                  {/* MAIN CATEGORY IMAGE */}
+                  {cat.imageUrl && (
+                    <div className="relative aspect-[4/5] w-full overflow-hidden">
 
-      <img
-        src={`http://localhost:8080${cat.imageUrl}`}
-        alt={cat.name}
-        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-      />
+                      <img
+                        src={`http://localhost:8080${cat.imageUrl}`}
+                        alt={cat.name}
+                        className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                      />
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      {/* Dark overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-      {/* Category name over image */}
-      <h3 className="absolute bottom-4 left-4 text-xl text-yellow-300 font-semibold tracking-wide">
-        {cat.name}
-      </h3>
+                      {/* Category name over image */}
+                      <h3 className="absolute bottom-4 left-4 text-xl text-yellow-300 font-semibold tracking-wide">
+                        {cat.name}
+                      </h3>
 
-    </div>
-  )}
+                    </div>
+                  )}
 
-  {/* FOOTER */}
-  <div className="px-5 py-4 bg-black/60 backdrop-blur-xl flex justify-between items-center">
-    <span className="text-sm text-yellow-200">
-      ID: {cat.id}
-    </span>
+                  {/* FOOTER */}
+                  <div className="px-5 py-4 bg-black/60 backdrop-blur-xl flex justify-between items-center">
+                    <span className="text-sm text-yellow-200">
+                      ID: {cat.id}
+                    </span>
 
-    <button
-      onClick={() => handleDelete(cat.id)}
-      className="px-4 py-1 bg-red-600 rounded-lg hover:bg-red-500 transition"
-    >
-      Delete
-    </button>
-  </div>
+                    <button
+                      onClick={() => handleDelete(cat.id)}
+                      className="px-4 py-1 bg-red-600 rounded-lg hover:bg-red-500 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
 
-</div>
+                </div>
 
                 <p className="text-sm text-gray-400 mt-2">
                   ID: {cat.id}
